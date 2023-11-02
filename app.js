@@ -20,7 +20,8 @@ mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTop
 const blogPostSchema = new mongoose.Schema({
   title: String,
   content: String,
-  image: String
+  image: String,
+  order: Number
 });
 
 // Create a model for the blog post
@@ -43,7 +44,7 @@ app.get('/', (req, res) => {
 
 app.get('/posts', async (req, res) => {
     try {
-        const result = await BlogPost.find();
+        const result = await BlogPost.find().sort({order: -1});
         const response = [...result];
         return res.send(response);
     } catch (error) {
@@ -82,6 +83,19 @@ app.post('/post', upload.single('image'), (req, res) => {
       res.status(500).send('Failed to create blog post');
     });
 });
+
+app.put('/post/:post_id', express.json(), async (req, res) => {
+  try {
+      const {post_id} = req.params;
+      const post = req.body;
+      console.log("post", post);
+      const updateResponse = await BlogPost.updateOne({_id: post_id}, {$set: post});
+      return res.send({message: "post updated", status: updateResponse});
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({message: "problem updating post", error: error});
+  }
+})
 
 app.delete('/posts/:id', async (req, res) => {
   try {
