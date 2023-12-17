@@ -24,8 +24,34 @@ const blogPostSchema = new mongoose.Schema({
   order: Number
 });
 
+const education_schema = new mongoose.Schema({
+  title: String,
+  university: String,
+  duration: String,
+  order: Number
+});
+
+const experiance_schema = new mongoose.Schema({
+  title: String,
+  company: String,
+  duration: String,
+  address: String,
+  order: Number
+});
+
+const project_schema = new mongoose.Schema({
+  title: String,
+  image: String,
+  key_words: Array,
+  description: String,
+  order: Number
+});
+
 // Create a model for the blog post
 const BlogPost = mongoose.model('BlogPost', blogPostSchema);
+const Education = mongoose.model('Education', education_schema);
+const Experiance = mongoose.model('Experiance', experiance_schema);
+const Project = mongoose.model('Project', project_schema);
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -106,6 +132,79 @@ app.delete('/posts/:id', async (req, res) => {
     console.log("error", error);
     return res.status(500).send({message: "problem deleting post", error: error});
   }
+})
+
+/* Education */
+
+app.get('/education', async (req, res) => {
+  try {
+    const result = await BlogPost.find().sort({order: -1});
+    const response = [...result];
+    return res.send(response);
+  } catch (error) {
+      console.log("error", error);
+      res.send({message: "error"})
+  }
+})
+
+app.put('/education/:id', async (req, res) => {
+
+})
+
+app.post('/education', async (req, res) => {
+  const education = new Education({
+    title: req.body.title,
+    duration: req.body.duration,
+    university: req.body.university
+  });
+
+  // Save the blog post to the database
+  education.save()
+    .then(() => {
+      res.send('Education created successfully!');
+    })
+    .catch(err => {
+      console.error('Failed to create education', err);
+      res.status(500).send('Failed to create education');
+    });
+});
+
+app.delete('/education/:id', async (req, res) => {
+
+})
+
+/* Experiance */
+
+
+/* Project */
+
+app.get('/project', async (req, res) => {
+  try {
+    const result = await Project.find().sort({order: -1});
+    const response = [...result];
+    return res.send(response);
+  } catch (error) {
+      console.log("error", error);
+      res.send({message: "error"})
+  }
+})
+
+app.post('/project', async (req, res) => {
+  const project = new Project({
+    title: req.body.title,
+    description: req.body.description,
+    image: req.file.filename
+  });
+
+  // Save the blog post to the database
+  project.save()
+    .then(() => {
+      res.send('Project created successfully!');
+    })
+    .catch(err => {
+      console.error('Failed to create Project', err);
+      res.status(500).send('Failed to create Project');
+    });
 })
 
 // Start the server
